@@ -28,19 +28,32 @@ Header.propTypes = {
   title: React.PropTypes.string.isRequired
 };
 
-function Counter(props) {
-  return (
-    <div className="counter">
-        <button className="counter-action decrement"> - </button>
-        <div className="counter-score"> {props.score} </div>
-        <button className="counter-action increment"> + </button>
-    </div>
-  );
-}
+// converted counter function into a component class.
+// note that now the props.score must be this.props.score
+var Counter = React.createClass({
+  propTypes:{
 
-Counter.propTypes = {
-  score: React.PropTypes.number.isRequired
-}
+  },
+
+  getInitialState: function() {
+    return {
+      score: 0
+    }
+  },
+
+  render: function() {
+    return (
+      <div className="counter">
+        <button className="counter-action decrement"> - </button>
+        <div className="counter-score"> {this.state.score} </div>
+        <button className="counter-action increment"> + </button>
+      </div>
+    );
+  }
+});
+
+// replace this.props.score with this.state.score, since score is our initial "state" object, then remove score from propTypes
+// you can move the prop types into the class, instead of declaring them separately, if you want.
 
 function Player(props) {
   return(
@@ -49,11 +62,12 @@ function Player(props) {
         {props.name}
        </div>
       <div className="player-score">
-        <Counter score={props.score} />
+        <Counter />
       </div>
     </div>
   );
 }
+// removed score prop from <Counter /> because it's not a prop anymore, it's a state.
 
 Player.propTypes = {
   name: React.PropTypes.string.isRequired,
@@ -66,8 +80,8 @@ function Application(props) {
       <Header title={props.title} />
       <div className="players">
         {props.players.map(function(player) {
-          return <Player name={player.name} score={player.score} key={player.id} />
-          )})
+          return <Player name={player.name} score={player.score} key={player.id}/>;
+          })
         }
       </div>
     </div>
