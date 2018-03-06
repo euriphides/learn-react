@@ -28,44 +28,19 @@ Header.propTypes = {
   title: React.PropTypes.string.isRequired
 };
 
-// converted counter function into a component class.
-// note that now the props.score must be this.props.score
-var Counter = React.createClass({
-  propTypes:{
-    initialScore: React.PropTypes.number.isRequired
-  },
+function Counter(props){
+  return (
+    <div className="counter">
+      <button className="counter-action decrement" > - </button>
+      <div className="counter-score"> {props.score} </div>
+      <button className="counter-action increment" > + </button>
+    </div>
+  );
+}
 
-  getInitialState: function() {
-    return {
-      score: this.props.initialScore
-    }
-  },
-
-  incrementScore: function() {
-    this.setState({
-      score: (this.state.score + 1)
-    })
-  },
-
-  decrementScore: function() {
-    this.setState({
-      score: (this.state.score - 1)
-    })
-  },
-
-  render: function() {
-    return (
-      <div className="counter">
-        <button className="counter-action decrement" onClick={this.decrementScore}> - </button>
-        <div className="counter-score"> {this.state.score} </div>
-        <button className="counter-action increment" onClick={this.incrementScore}> + </button>
-      </div>
-    );
-  }
-});
-
-// replace this.props.score with this.state.score, since score is our initial "state" object, then remove score from propTypes
-// you can move the prop types into the class, instead of declaring them separately, if you want.
+Counter.propTypes = {
+  score: React.PropTypes.number.isRequired
+}
 
 function Player(props) {
   return(
@@ -74,7 +49,7 @@ function Player(props) {
         {props.name}
        </div>
       <div className="player-score">
-        <Counter initialScore={props.score} />
+        <Counter score={props.score} />
       </div>
     </div>
   );
@@ -86,34 +61,44 @@ Player.propTypes = {
   score: React.PropTypes.number.isRequired
 }
 
-function Application(props) {
-  return (
-    <div className="scoreboard">
-      <Header title={props.title} />
-      <div className="players">
-        {props.players.map(function(player) {
-          return <Player name={player.name} score={player.score} key={player.id}/>;
-          })
-        }
-      </div>
-    </div>
-  );
-}
-
-Application.propTypes = {
-  //title: React.PropTypes.string.isRequired,
-  title: React.PropTypes.string, 
-    players: React.PropTypes.arrayOf(React.PropTypes.shape({
+var Application = React.createClass({
+  propTypes: {
+    title: React.PropTypes.string,
+    initialPlayers: React.PropTypes.arrayOf(React.PropTypes.shape({
       name: React.PropTypes.string.isRequired,
       score: React.PropTypes.number.isRequired,
       id: React.PropTypes.number.isRequired
     })).isRequired
-  
-};
+  },
+  getDefaultProps: function() {
+    return(
+      {
+        title: "Scoreboard"
+      }
+    )
+  },
 
-Application.defaultProps = {
-  title: "Scoreboard"
-};
+  getInitialState: function() {
+    return{
+      players: this.props.initialPlayers
+    };
+  },
 
-ReactDOM.render(<Application players={PLAYERS}/>, document.getElementById('container'));
+  render: function(){
+    return (
+      <div className="scoreboard">
+        <Header title={this.props.title} />
+        <div className="players">
+          {this.state.players.map(function(player) {
+            return <Player name={player.name} score={player.score} key={player.id}/>;
+          })
+          }
+        </div>
+      </div>
+    );
+  }
+})
+
+
+ReactDOM.render(<Application initialPlayers={PLAYERS}/>, document.getElementById('container'));
 //ReactDOM.render(<Application title="My Scoreboard"/>, document.getElementById('container'));
