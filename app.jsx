@@ -21,22 +21,56 @@ let nextId = 4;
 const Stopwatch = React.createClass({
   getInitialState: function() {
     return {
-      running: false
+      running: false,
+      elapsedTime: 0,
+      previousTime: 0
     }
   },
-  render: function() {
-    let startStop;
 
-    if(this.state.running) {
-      startStop = <button>Stop</button>
-    } else {
-      startStop = <button>Start</button>
+  // componentDidMount is a React method that runs as soon as the item it's associated with is loaded onto the page
+  componentDidMount: function() {
+    this.interval = setInterval(this.onTick, 100)
+  },
+  //clean up the set interval once the stopwatch is no longer needed.
+  componentWillUnmount: function() {
+    clearInterval(this.interval)
+  },
+  onTick: function () {
+    if (this.state.running) {
+      let now = Date.now()
+      this.setState({
+        previousTime: now,
+        elapsedTime: this.state.elapsedTime + (now - this.state.previousTime)
+      })
     }
+    console.log('onTick')
+  },
+
+  onStart: function(){
+    this.setState({
+      running: true,
+      previousTime: Date.now()
+    })
+  },
+  onStop: function(){
+    this.setState({ running: false })
+  },
+  onReset: function(){
+    this.setState({
+      elapsedTime: 0,
+      previousTime: Date.now()
+    })
+  },
+  render: function() {
+    let startStop = this.state.running ? <button onClick={this.onStop}>Stop</button> : <button onClick={this.onStart}>Start</button>
+    // using ternary for startStop instead of if/else - if it's running, show stop, else show start.
+    let seconds = Math.floor(this.state.elapsedTime / 1000)
     return (
       <div className="stopwatch">
         <h2>Stopwatch</h2>
-        <div className="stopwatch-time">0</div>
+        <div className="stopwatch-time">{ seconds }</div>
         { startStop }
+        <button onClick={this.onReset}>Reset</button>
       </div>
     )
   }
